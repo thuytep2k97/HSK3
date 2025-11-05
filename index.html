@@ -1,141 +1,207 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<title>HSK3 Quiz - Luyện từ vựng</title>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<style>
-  body {
-    font-family: "Segoe UI", sans-serif;
-    text-align: center;
-    background: #f5f7fa;
-    margin: 0; padding: 0;
-  }
-  h1 { background: #0078d7; color: white; padding: 15px; margin: 0; }
-  #upload { margin: 20px; }
-  .quiz-box {
-    background: white;
-    max-width: 500px;
-    margin: 20px auto;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    padding: 20px;
-  }
-  .word { font-size: 40px; margin: 20px 0; color: #333; }
-  button.option {
-    display: block;
-    width: 90%;
-    margin: 10px auto;
-    padding: 10px;
-    border: 2px solid #0078d7;
-    border-radius: 8px;
-    background: white;
-    cursor: pointer;
-    font-size: 18px;
-    transition: 0.2s;
-  }
-  button.option:hover { background: #e6f0ff; }
-  .correct { background: #c8f7c5 !important; }
-  .wrong { background: #f8d7da !important; }
-  #score { font-weight: bold; margin-top: 10px; }
-  #pinyin { font-size: 20px; color: gray; margin-bottom: 10px; }
-  .audio-btn {
-    background: none; border: none; font-size: 28px; cursor: pointer;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Học từ vựng HSK1</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-image: url('https://github.com/thuytep2k97/HSK3/blob/main/huhu.jpg?raw=true');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* lớp phủ mờ nhẹ để chữ không bị chìm */
+    .overlay {
+      background-color: rgba(255, 255, 255, 0.3); /* giảm từ 0.9 xuống 0.3 để nền rõ hơn */
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -1;
+    }
+
+    h1 {
+      font-size: 2em;
+      color: #123;
+      margin-bottom: 20px;
+      text-align: center;
+      text-shadow: 0 2px 5px rgba(255,255,255,0.8);
+    }
+
+    .scoreboard {
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      font-size: 1.1em;
+      padding: 8px 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      margin-top: 25px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      width: 320px;
+      padding: 40px 30px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.02);
+      box-shadow: 0 6px 25px rgba(0,0,0,0.25);
+    }
+
+    .word {
+      font-size: 3em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .pinyin {
+      font-size: 1.4em;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .answer-input {
+      padding: 10px;
+      width: 100%;
+      font-size: 1em;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #2b6cb0;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      width: 100%;
+      margin-bottom: 10px;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background-color: #1a4f8a;
+    }
+
+    .message {
+      font-size: 1.2em;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .container {
+      z-index: 10;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+  </style>
 </head>
 <body>
-<h1>Luyện từ vựng HSK3</h1>
+  <div class="overlay"></div>
 
-<input type="file" id="upload" accept=".xlsx,.xls">
-<div class="quiz-box" id="quizBox" style="display:none;">
-  <div class="word" id="word"></div>
-  <div id="pinyin"></div>
-  <button class="audio-btn" id="speakBtn">🔊</button>
-  <div id="options"></div>
-  <div id="feedback"></div>
-  <div id="score"></div>
-</div>
+  <div class="container">
+    <h1>🎮 Học từ vựng HSK1 – Chọn đúng nghĩa!</h1>
 
-<script>
-let vocab = [];
-let currentWord = null;
-let score = 0, total = 0;
+    <div class="card">
+      <div class="word" id="word">加载中...</div>
+      <div class="pinyin" id="pinyin"></div>
 
-document.getElementById("upload").addEventListener("change", handleFile, false);
+      <input type="text" id="answer" class="answer-input" placeholder="Nhập nghĩa tiếng Việt..." />
+      <button onclick="checkAnswer()">Kiểm tra</button>
+      <button onclick="speakWord()">🔊 Nghe phát âm</button>
 
-function handleFile(e) {
-  const file = e.target.files[0];
-  const reader = new FileReader();
-  reader.onload = function(evt) {
-    const data = new Uint8Array(evt.target.result);
-    const workbook = XLSX.read(data, {type: "array"});
-    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(firstSheet, {header:1});
-    vocab = rows.slice(1).map(r => ({
-      hanzi: r[0],
-      pinyin: r[1],
-      meaning: r[2]
-    })).filter(r => r.hanzi && r.meaning);
-    document.getElementById("quizBox").style.display = "block";
-    nextQuestion();
-  };
-  reader.readAsArrayBuffer(file);
-}
+      <div class="message" id="message"></div>
+    </div>
 
-function nextQuestion() {
-  const randomIndex = Math.floor(Math.random() * vocab.length);
-  currentWord = vocab[randomIndex];
-  document.getElementById("word").textContent = currentWord.hanzi;
-  document.getElementById("pinyin").textContent = currentWord.pinyin;
-  document.getElementById("feedback").textContent = "";
+    <div class="scoreboard">
+      📘 Điểm hiện tại: <span id="score">0</span> | 🏆 Kỷ lục: <span id="best">0</span>
+    </div>
+  </div>
 
-  // Tạo danh sách 4 lựa chọn
-  let options = [currentWord.meaning];
-  while (options.length < 4) {
-    const rand = vocab[Math.floor(Math.random() * vocab.length)].meaning;
-    if (!options.includes(rand)) options.push(rand);
-  }
-  options = options.sort(() => Math.random() - 0.5);
-  const container = document.getElementById("options");
-  container.innerHTML = "";
-  options.forEach(opt => {
-    const btn = document.createElement("button");
-    btn.textContent = opt;
-    btn.className = "option";
-    btn.onclick = () => checkAnswer(btn, opt);
-    container.appendChild(btn);
-  });
+  <script>
+    const words = [
+      { zh: "矮", pinyin: "ǎi", vi: "thấp, lùn" },
+      { zh: "爱好", pinyin: "àihào", vi: "sở thích" },
+      { zh: "安静", pinyin: "ānjìng", vi: "yên tĩnh" },
+      { zh: "班", pinyin: "bān", vi: "lớp, ca (làm việc)" },
+      { zh: "帮忙", pinyin: "bāngmáng", vi: "giúp đỡ" },
+      { zh: "北方", pinyin: "běifāng", vi: "miền Bắc" },
+      { zh: "比赛", pinyin: "bǐsài", vi: "thi đấu" },
+      { zh: "比较", pinyin: "bǐjiào", vi: "tương đối, khá" }
+    ];
 
-  speak(currentWord.hanzi);
-}
+    let current, score = 0, best = localStorage.getItem("bestScore") || 0;
+    document.getElementById("best").innerText = best;
 
-function checkAnswer(btn, selected) {
-  const buttons = document.querySelectorAll(".option");
-  buttons.forEach(b => b.disabled = true);
-  if (selected === currentWord.meaning) {
-    btn.classList.add("correct");
-    document.getElementById("feedback").textContent = "✅ Chính xác!";
-    score++;
-  } else {
-    btn.classList.add("wrong");
-    document.getElementById("feedback").textContent = 
-      `❌ Sai! Đáp án đúng: ${currentWord.meaning}`;
-  }
-  total++;
-  document.getElementById("score").textContent = `Điểm: ${score}/${total}`;
-  setTimeout(nextQuestion, 1500);
-}
+    function newWord() {
+      current = words[Math.floor(Math.random() * words.length)];
+      document.getElementById("word").innerText = current.zh;
+      document.getElementById("pinyin").innerText = current.pinyin;
+      document.getElementById("answer").value = "";
+      document.getElementById("message").innerText = "";
+    }
 
-function speak(text) {
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = "zh-CN";
-  speechSynthesis.speak(utter);
-}
+    function checkAnswer() {
+      const ans = document.getElementById("answer").value.trim().toLowerCase();
+      const correct = current.vi.toLowerCase();
+      const msg = document.getElementById("message");
 
-document.getElementById("speakBtn").onclick = () => {
-  speak(currentWord.hanzi);
-};
-</script>
+      if (correct.includes(ans) && ans !== "") {
+        msg.style.color = "green";
+        msg.innerText = "✅ Đúng rồi, a Trung khen bạn!";
+        score++;
+      } else {
+        msg.style.color = "red";
+        msg.innerText = "❌ Tiếc quá, sai rồi!";
+        score = 0;
+      }
+
+      if (score > best) {
+        best = score;
+        localStorage.setItem("bestScore", best);
+      }
+
+      document.getElementById("score").innerText = score;
+      document.getElementById("best").innerText = best;
+
+      setTimeout(newWord, 1500);
+    }
+
+    function speakWord() {
+      const utter = new SpeechSynthesisUtterance(current.zh);
+      utter.lang = "zh-CN";
+      speechSynthesis.speak(utter);
+    }
+
+    newWord();
+  </script>
 </body>
 </html>
