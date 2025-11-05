@@ -5,15 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Học từ vựng HSK – Trung Béo</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
 <style>
+  * {
+    box-sizing: border-box;
+  }
+
   body {
-    font-family: 'Segoe UI', sans-serif;
+    font-family: "Segoe UI", sans-serif;
     background-image: url('https://github.com/thuytep2k97/HSK3/blob/main/huhu.jpg?raw=true');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
     margin: 0;
-    padding: 0;
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -22,75 +26,111 @@
   }
 
   h1 {
-    color: #0d2b52;
-    text-shadow: 1px 1px 3px white;
+    color: #00264d;
+    text-shadow: 2px 2px 5px rgba(255,255,255,0.8);
+    font-size: 2rem;
+    margin-bottom: 30px;
     text-align: center;
   }
 
-  #game-container {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 30px;
+  #main-container {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px 30px;
     border-radius: 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
     text-align: center;
-    width: 320px;
-  }
-
-  #chinese {
-    font-size: 40px;
-    font-weight: bold;
-  }
-
-  #pinyin {
-    font-size: 22px;
-    color: #555;
-    margin-bottom: 10px;
-  }
-
-  input {
-    padding: 8px;
-    width: 90%;
-    margin-top: 10px;
-  }
-
-  button {
-    background: #0056b3;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-
-  button:hover {
-    background: #003f82;
-  }
-
-  #scoreboard {
-    margin-top: 15px;
-    color: #222;
-    font-weight: bold;
+    width: 350px;
+    max-width: 90vw;
   }
 
   #file-input {
+    margin-bottom: 25px;
+    font-size: 15px;
+  }
+
+  #chinese {
+    font-size: 48px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  #pinyin {
+    font-size: 20px;
+    color: #555;
     margin-bottom: 20px;
   }
 
+  input[type="text"] {
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 16px;
+  }
+
+  button {
+    background: #0066cc;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin: 5px;
+    transition: 0.2s;
+  }
+
+  button:hover {
+    background: #004999;
+  }
+
+  #result {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  #scoreboard {
+    margin-top: 20px;
+    color: #333;
+    font-size: 16px;
+  }
+
+  /* Hiệu ứng khi tải file xong */
+  #file-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #file-zone label {
+    font-size: 17px;
+    font-weight: bold;
+    color: #003366;
+    margin-bottom: 8px;
+  }
 </style>
 </head>
+
 <body>
   <h1>🎮 Học từ vựng HSK – Chọn đúng nghĩa!</h1>
 
-  <input type="file" id="file-input" accept=".xlsx" />
-  <div id="game-container" style="display:none;">
-    <div id="chinese"></div>
-    <div id="pinyin"></div>
-    <input type="text" id="answer" placeholder="Nhập nghĩa tiếng Việt...">
-    <button onclick="checkAnswer()">Kiểm tra</button>
-    <button onclick="speak()">🔊 Nghe phát âm</button>
-    <div id="result"></div>
-    <div id="scoreboard">Điểm: 0 | Kỷ lục: 0</div>
+  <div id="main-container">
+    <div id="file-zone">
+      <label>📘 Chọn file Excel từ vựng (.xlsx)</label>
+      <input type="file" id="file-input" accept=".xlsx">
+    </div>
+
+    <div id="game-container" style="display:none;">
+      <div id="chinese"></div>
+      <div id="pinyin"></div>
+      <input type="text" id="answer" placeholder="Nhập nghĩa tiếng Việt...">
+      <button onclick="checkAnswer()">Kiểm tra</button>
+      <button onclick="speak()">🔊 Nghe phát âm</button>
+      <div id="result"></div>
+      <div id="scoreboard">Điểm: 0 | Kỷ lục: 0</div>
+    </div>
   </div>
 
 <script>
@@ -115,11 +155,11 @@
         vi: row[2]
       })).filter(x => x.zh && x.vi);
       if (words.length > 0) {
-        document.getElementById("file-input").style.display = "none";
+        document.getElementById("file-zone").style.display = "none";
         document.getElementById("game-container").style.display = "block";
         nextWord();
       } else {
-        alert("File không có dữ liệu hợp lệ!");
+        alert("⚠️ File không có dữ liệu hợp lệ!");
       }
     };
     reader.readAsArrayBuffer(file);
